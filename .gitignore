@@ -102,3 +102,6 @@ jenkins_home/
 *.pem
 *.key
 secrets/
+
+# Data
+data/

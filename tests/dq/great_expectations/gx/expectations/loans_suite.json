@@ -1,0 +1,77 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "loans_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "outstanding_amount"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "interest_rate",
+        "max_value": 30.0,
+        "min_value": 1.0
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "principal_amount",
+        "max_value": null,
+        "min_value": 0.001,
+        "strict_min": true
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "loan_type",
+        "value_set": [
+          "home",
+          "personal",
+          "auto",
+          "education"
+        ]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "status",
+        "value_set": [
+          "active",
+          "closed",
+          "defaulted",
+          "restructured"
+        ]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "loan_duration_days"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_end_date_after_start_date",
+      "kwargs": {
+        "query": "SELECT COUNT(CASE WHEN end_date <= start_date THEN 1 END) as unexpected_count, COUNT(*) as total_count FROM {active_batch} WHERE end_date IS NOT NULL AND start_date IS NOT NULL",
+        "template_dict": {}
+      },
+      "meta": {}
+    }
+  ],
+  "ge_cloud_id": null,
+  "meta": {
+    "great_expectations_version": "0.18.15"
+  }
+}

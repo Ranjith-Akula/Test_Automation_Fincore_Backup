@@ -1,0 +1,41 @@
+name: fincore_checkpoint
+config_version: 1.0
+template_name:
+module_name: great_expectations.checkpoint
+class_name: Checkpoint
+run_name_template:
+expectation_suite_name:
+batch_request: {}
+action_list:
+  - name: store_validation_result
+    action:
+      class_name: StoreValidationResultAction
+  - name: store_evaluation_params
+    action:
+      class_name: StoreEvaluationParametersAction
+evaluation_parameters: {}
+runtime_configuration: {}
+validations:
+  - batch_request:
+      datasource_name: fincore_pg
+      data_connector_name: default_inferred_data_connector_name
+      data_asset_name: public.customers
+    expectation_suite_name: customers_suite
+  - batch_request:
+      datasource_name: fincore_pg
+      data_connector_name: default_inferred_data_connector_name
+      data_asset_name: public.accounts
+    expectation_suite_name: accounts_suite
+  - batch_request:
+      datasource_name: fincore_pg
+      data_connector_name: default_inferred_data_connector_name
+      data_asset_name: public.transactions
+    expectation_suite_name: transactions_suite
+  - batch_request:
+      datasource_name: fincore_pg
+      data_connector_name: default_inferred_data_connector_name
+      data_asset_name: public.loans
+    expectation_suite_name: loans_suite
+profilers: []
+ge_cloud_id:
+expectation_suite_ge_cloud_id:
