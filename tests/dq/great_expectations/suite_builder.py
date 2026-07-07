@@ -1,7 +1,7 @@
 import json
 import great_expectations as gx
 from great_expectations.core.batch import BatchRequest
-from datetime import date
+from datetime import datetime
 from config import GX_ROOT
 import sys
 sys.path.insert(0, "/workspaces/Test_Automation_Fincore_Backup/tests/dq/great_expectations/gx/plugins")
@@ -40,9 +40,9 @@ for table in config["tables"]:
             continue
 
         if expectations.get("max_value") == "today":
-            expectations["max_value"] = str(date.today())
+            expectations["max_value"] = datetime.now().isoformat()
         if expectations.get("min_value") == "today":
-            expectations["min_value"] = str(date.today())
+            expectations["min_value"] = datetime.now().isoformat()
 
         params = {k: v for k, v in expectations.items() if k != "type"}
         expectation_fn = getattr(validator, expectations["type"])
