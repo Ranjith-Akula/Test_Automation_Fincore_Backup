@@ -60,7 +60,7 @@ def check_all_records_active(api_response):
         assert record.get("status") == "active", f"Record {record} does not have status 'active'"
 
 
-@pytest.mark.xfail(reason="API search endpoint not filtering correctly - known bug")
+
 @then("All returned names contain JOHN")
 def check_all_names_contain_john(api_response):
     data = api_response.json().get("data", [])
