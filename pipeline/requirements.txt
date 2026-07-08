@@ -13,3 +13,9 @@ great-expectations==0.18.8
 # Utilities
 pandas==2.1.4
 numpy==1.26.2
+
+#Tests
+pytest
+pytest-bdd
+pytest-html
+requests
