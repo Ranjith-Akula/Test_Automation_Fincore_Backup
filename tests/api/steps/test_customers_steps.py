@@ -5,6 +5,7 @@ import pytest
 import requests
 from dotenv import load_dotenv
 from pytest_bdd import scenarios, given, when, then, parsers
+from tests.api.steps import common_steps
 
 load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
 
@@ -13,43 +14,12 @@ API_BASE_URL = os.getenv("API_BASE_URL")
 scenarios('../features/customers.feature')
 
 
-@given("I am authenticated")
-def authenticated(api_client):
-    pass
-
-
-@given("I am not authenticated", target_fixture="api_client")
-def not_authenticated():
-    return requests.Session()
-
-
-@when(parsers.parse('I GET "{endpoint}"'), target_fixture="api_response")
-def get_request(api_client, endpoint):
-    return api_client.get(f"{API_BASE_URL}{endpoint}")
-
-
-@then(parsers.parse('Response is {status_code:d}'))
-def check_status_code(api_response, status_code):
-    assert api_response.status_code == status_code
-
-
 @then("data array is non-empty")
 def check_data_array(api_response):
     json_response = api_response.json()
     assert "data" in json_response
     assert isinstance(json_response["data"], list)
     assert len(json_response["data"]) > 0
-
-
-@then("total matches DB count")
-def check_total_matches_db_count(api_response, db_connection):
-    json_response = api_response.json()
-    total_from_api = json_response.get("total")
-    assert total_from_api is not None, "Response missing 'total' field"
-    with db_connection.cursor() as cursor:
-        cursor.execute("SELECT COUNT(*) FROM customers")
-        total_from_db = cursor.fetchone()[0]
-    assert int(total_from_api) == total_from_db
 
 
 @then("All returned records have status = active")
