@@ -7,6 +7,7 @@ import psycopg2.extras
 from tests.api.steps import common_steps
 from dotenv import load_dotenv
 from datetime import datetime
+from urllib.parse import urlparse, parse_qs
 
 load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
 
@@ -25,7 +26,6 @@ def check_all_records_credit(api_response):
 
 @then("All returned transaction_dates fall within the range")
 def check_transaction_dates_within_range(api_response):
-    from urllib.parse import urlparse, parse_qs
     parsed = urlparse(api_response.url)
     params = parse_qs(parsed.query)
     start = datetime.fromisoformat(params["from_date"][0])

@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 import requests
 from pytest_bdd import given, when, then, parsers
 from dotenv import load_dotenv
@@ -30,10 +31,12 @@ def check_status_code(api_response, status_code):
 
 @then("total matches DB count")
 def check_total_matches_db_count(api_response, db_connection):
+    path = urlparse(api_response.url).path
+    table_name = path.strip("/").split("/")[-1]  #Get table name from path
     json_response = api_response.json()
     total_from_api = json_response.get("total")
     assert total_from_api is not None, "Response missing 'total' field"
     with db_connection.cursor() as cursor:
-        cursor.execute("SELECT COUNT(*) FROM customers")
+        cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
         total_from_db = cursor.fetchone()[0]
     assert int(total_from_api) == total_from_db
