@@ -4,10 +4,16 @@ import psycopg2
 import requests
 from dotenv import load_dotenv
 from pathlib import Path
+import time
 
 load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
 
 API_BASE_URL = os.getenv("API_BASE_URL")
+
+@pytest.fixture(autouse=True)
+def rate_limit_delay():
+    yield
+    time.sleep(0.5)  # 500ms delay after each test
 
 
 @pytest.fixture(scope="session")

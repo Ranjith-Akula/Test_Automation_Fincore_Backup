@@ -43,19 +43,18 @@ def check_loan_duration(api_response):
 @then("total_customers match DB counts")
 def check_total_loans_match_db_count(api_response, db_connection):
     json_response = api_response.json()
-    total_from_api = json_response.get("total_loans")
-    assert total_from_api is not None, "Response missing 'total_loans' field"
+    total_from_api = json_response.get("total_customers")
+    assert total_from_api is not None, "Response missing 'total_customers' field"
     with db_connection.cursor() as cursor:
-        cursor.execute("SELECT COUNT(*) FROM loans")
+        cursor.execute("SELECT COUNT(*) FROM customers")
         total_from_db = cursor.fetchone()[0]
-    assert int(total_from_api) == total_from_db, f"API total_loans {total_from_api} does not match DB count {total_from_db}"
+    assert int(total_from_api) == total_from_db, f"API total_customers {total_from_api} does not match DB count {total_from_db}"
 
 
 @then("active_loans match DB counts")
 def check_active_loans_match_db_count(api_response, db_connection):
     json_response = api_response.json()
-    active_list = [record for record in json_response.get("data", []) if record.get("status") == "active"]
-    total_active_from_api = len(active_list)
+    total_active_from_api = json_response.get("active_loans")
     with db_connection.cursor() as cursor:
         cursor.execute("SELECT COUNT(*) FROM loans WHERE status = 'active'")
         total_active_from_db = cursor.fetchone()[0]
