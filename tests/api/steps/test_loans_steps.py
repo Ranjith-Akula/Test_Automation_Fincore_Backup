@@ -21,23 +21,22 @@ def check_all_loans_active(api_response):
     
 @then("All fields present including loan_duration_days and emi_amount")
 def check_all_fields_present(api_response):
-    data = api_response.json().get("data", [])
-    assert len(data) > 0, "Response returned no data to validate"
-    required_fields = ["loan_duration_days", "emi_amount"]
-    for record in data:
-        for field in required_fields:
-            assert field in record, f"Record {record} missing required field '{field}'"
+    loan = api_response.json()
+    assert len(loan) > 0, "Response returned no data to validate"
+    assert "loan_duration_days" in loan, "Missing loan_duration_days"
+    assert "emi_amount" in loan, "Missing emi_amount"
+    assert loan["loan_duration_days"] is not None
+    assert loan["emi_amount"] is not None
 
 
 @then("loan_duration_days matches end_date minus start_date calculation")
 def check_loan_duration(api_response):
-    data = api_response.json().get("data", [])
-    assert len(data) > 0, "Response returned no data to validate"
-    for record in data:
-        start_date = datetime.fromisoformat(record.get("start_date", "").replace(".000Z", ""))
-        end_date = datetime.fromisoformat(record.get("end_date", "").replace(".000Z", ""))
-        expected_duration = (end_date - start_date).days
-        assert record.get("loan_duration_days") == expected_duration, f"Record {record} has incorrect loan_duration_days"
+    loan = api_response.json()
+    assert len(loan) > 0, "Response returned no data to validate"
+    start_date = datetime.fromisoformat(loan.get("start_date", "").replace(".000Z", ""))
+    end_date = datetime.fromisoformat(loan.get("end_date", "").replace(".000Z", ""))
+    expected_duration = (end_date - start_date).days
+    assert loan.get("loan_duration_days") == expected_duration, f"Record {loan} has incorrect loan_duration_days"
 
 
 @then("total_customers match DB counts")
