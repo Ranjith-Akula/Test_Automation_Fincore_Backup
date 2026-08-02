@@ -36,10 +36,10 @@ const USERS = [
 ];
 
 // Pre-hash passwords on startup (for demo purposes)
-const initializeUsers = async () => {
-    USERS[0].password = await bcrypt.hash('Admin@123', 10);
-    USERS[1].password = await bcrypt.hash('Viewer@123', 10);
-    USERS[2].password = await bcrypt.hash('Test@123', 10);
+const initializeUsers = () => {
+    USERS[0].password = bcrypt.hashSync('Admin@123', 10);
+    USERS[1].password = bcrypt.hashSync('Viewer@123', 10);
+    USERS[2].password = bcrypt.hashSync('Test@123', 10);
 };
 initializeUsers();
 
