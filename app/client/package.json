@@ -2,6 +2,7 @@
   "name": "fincore-bank-ui",
   "version": "1.0.0",
   "description": "FinCore Bank React UI with dark theme",
+  "type": "module",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",

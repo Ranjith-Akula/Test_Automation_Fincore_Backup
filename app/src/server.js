@@ -31,6 +31,10 @@ const app = express();
 const API_PORT = process.env.API_PORT || 4000;
 const UI_PORT = process.env.UI_PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:30000')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
 // Security middleware
 app.use(helmet({
@@ -47,7 +51,17 @@ app.use('/api/', limiter);
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: (origin, callback) => {
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`Origin not allowed by CORS: ${origin}`), false);
+    },
     credentials: true
 }));
 

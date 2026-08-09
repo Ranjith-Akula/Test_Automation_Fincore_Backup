@@ -35,7 +35,7 @@ services:
     container_name: fincore-app
     restart: unless-stopped
     ports:
-      - "3000:3000"  # React UI
+      - "30000:3000"  # React UI on host port 30000
       - "4000:4000"  # Express API
     depends_on:
       postgres:
@@ -59,7 +59,7 @@ services:
       UI_PORT: 3000
       
       # CORS
-      CORS_ORIGIN: http://localhost:3000
+      CORS_ORIGIN: http://localhost:3000,http://localhost:30000
     volumes:
       - ./pipeline:/app/pipeline:ro
       - ./data:/app/data:ro
