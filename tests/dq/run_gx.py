@@ -1,9 +1,13 @@
 import great_expectations as gx
 import sys
-sys.path.insert(0, "/workspaces/Test_Automation_Fincore_Backup/tests/dq/great_expectations/gx/plugins")
-import expect_end_date_after_start_date
+from pathlib import Path
 
-GX_ROOT = "/workspaces/Test_Automation_Fincore_Backup/tests/dq/great_expectations/gx"
+GE_HELPER_DIR = Path(__file__).resolve().parent / "great_expectations"
+sys.path.insert(0, str(GE_HELPER_DIR))
+from config import GX_ROOT, PLUGINS_DIR
+
+sys.path.insert(0, PLUGINS_DIR)
+import expect_end_date_after_start_date
 
 context = gx.get_context(context_root_dir=GX_ROOT)
 

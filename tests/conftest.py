@@ -5,12 +5,24 @@ import requests
 from dotenv import load_dotenv
 from pathlib import Path
 import time
-from playwright.sync_api import sync_playwright
+# from playwright.sync_api import sync_playwright
 from datetime import datetime
 
-load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(REPO_ROOT / "app" / ".env")
+load_dotenv(REPO_ROOT / "pipeline" / ".env")
 
 API_BASE_URL = os.getenv("API_BASE_URL")
+if not API_BASE_URL:
+    api_port = os.getenv("API_PORT")
+    if api_port:
+        API_BASE_URL = f"http://localhost:{api_port}/api/v1"
+
+if not API_BASE_URL:
+    raise RuntimeError(
+        "Missing API_BASE_URL. Set API_BASE_URL in pipeline/.env or API_PORT in app/.env."
+    )
+
 BASE_URL = os.getenv("FINCORE_BASE_URL", "http://localhost:3000")
 
 @pytest.fixture(autouse=True)
@@ -42,28 +54,32 @@ def api_client(auth_token):
     session.headers.update({"Authorization": f"Bearer {auth_token}"})
     return session
 
-
+'''
 # ---------- Playwright fixtures ----------
 
 @pytest.fixture(scope="session")
 def playwright_instance():
+    """Starts the actual Playwright engine/driver process"""
     with sync_playwright() as p:
         yield p
 
 @pytest.fixture(scope="session")
 def browser(playwright_instance):
+    """Launches a browser instance for the entire test session"""
     browser = playwright_instance.chromium.launch(headless=True)
     yield browser
     browser.close()
 
 @pytest.fixture
 def context(browser):
+    """Creates a new browser context for each test, ensuring isolation"""
     context = browser.new_context()
     yield context
     context.close()
 
 @pytest.fixture
 def page(context):
+    """Creates a new page in the browser context and navigates to the base URL"""
     page = context.new_page()
     page.goto(BASE_URL)
     yield page
@@ -82,6 +98,7 @@ def valid_credentials():
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item, call):
+    """Hook to take a screenshot on test failure for UI tests."""
     outcome = yield
     report = outcome.get_result()
     if report.when == "call" and report.failed:
@@ -93,3 +110,5 @@ def pytest_runtest_makereport(item, call):
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             path = screenshot_dir / f"{safe_name}_{timestamp}.png"
             page.screenshot(path=str(path))
+            
+'''

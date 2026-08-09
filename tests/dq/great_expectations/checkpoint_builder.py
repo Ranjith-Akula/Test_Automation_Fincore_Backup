@@ -1,11 +1,9 @@
 import great_expectations as gx
 from great_expectations.core.batch import BatchRequest
 import json
-from config import GX_ROOT
+from config import GX_ROOT, RULES_CONFIG_PATH
 
-CONFIG_PATH = "/workspaces/Test_Automation_Fincore_Backup/tests/dq/great_expectations/rules_config.json"
-
-with open(CONFIG_PATH) as f:
+with open(RULES_CONFIG_PATH) as f:
     config = json.load(f)
 
 context = gx.get_context(context_root_dir=GX_ROOT)

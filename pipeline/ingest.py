@@ -10,6 +10,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit
 from dotenv import load_dotenv
 import logging
+import psycopg2
 
 # Import transformation functions
 from transformations import (
@@ -68,12 +69,20 @@ class FincorePipeline:
     
     def _create_spark_session(self) -> SparkSession:
         """Create and configure Spark session."""
-        spark = SparkSession.builder \
+        spark_builder = SparkSession.builder \
             .appName(os.getenv('SPARK_APP_NAME', 'FinCore_Pipeline')) \
             .config("spark.driver.memory", os.getenv('SPARK_DRIVER_MEMORY', '4g')) \
-            .config("spark.executor.memory", os.getenv('SPARK_EXECUTOR_MEMORY', '4g')) \
-            .config("spark.jars", self._get_postgres_jar()) \
-            .getOrCreate()
+            .config("spark.executor.memory", os.getenv('SPARK_EXECUTOR_MEMORY', '4g'))
+
+        postgres_jar = self._get_postgres_jar()
+        if postgres_jar.endswith('.jar'):
+            spark_builder = spark_builder \
+                .config("spark.driver.extraClassPath", postgres_jar) \
+                .config("spark.executor.extraClassPath", postgres_jar)
+        else:
+            spark_builder = spark_builder.config("spark.jars.packages", postgres_jar)
+
+        spark = spark_builder.getOrCreate()
         
         spark.sparkContext.setLogLevel("WARN")
         return spark
@@ -82,6 +91,7 @@ class FincorePipeline:
         """Get PostgreSQL JDBC driver path."""
         # Try to find the jar in common locations
         possible_paths = [
+            os.path.expanduser("~/.ivy2/jars/org.postgresql_postgresql-42.6.0.jar"),
             "/usr/share/java/postgresql.jar",
             "/usr/local/share/java/postgresql.jar",
             os.path.expanduser("~/.m2/repository/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar")
@@ -254,14 +264,33 @@ class FincorePipeline:
         logger.info(f"Loans transformation complete: {df.count()} rows")
         return df
     
-    def write_to_postgres(self, df: 'DataFrame', table_name: str, mode: str = 'overwrite'):
+    def truncate_target_tables(self):
+        """Truncate target tables before loading to avoid drop/FK conflicts."""
+        conn = psycopg2.connect(
+            host=self.db_config['host'],
+            port=self.db_config['port'],
+            database=self.db_config['database'],
+            user=self.db_config['user'],
+            password=self.db_config['password']
+        )
+        try:
+            conn.autocommit = True
+            with conn.cursor() as cur:
+                cur.execute(
+                    "TRUNCATE TABLE transactions, accounts, loans, customers RESTART IDENTITY CASCADE"
+                )
+            logger.info("Target tables truncated successfully")
+        finally:
+            conn.close()
+
+    def write_to_postgres(self, df: 'DataFrame', table_name: str, mode: str = 'append'):
         """
         Write DataFrame to PostgreSQL table.
         
         Args:
             df: DataFrame to write
             table_name: Target table name
-            mode: Write mode (overwrite, append)
+            mode: Write mode (append)
         """
         logger.info(f"Writing {df.count()} rows to table: {table_name}")
         
@@ -299,9 +328,32 @@ class FincorePipeline:
             accounts_transformed = self.transform_accounts(accounts_df)
             transactions_transformed = self.transform_transactions(transactions_df)
             loans_transformed = self.transform_loans(loans_df)
+
+            # Keep only child rows that reference existing parent keys.
+            valid_customer_ids = customers_transformed.select(col('id').alias('customer_id_ref')).distinct()
+            accounts_transformed = accounts_transformed \
+                .join(valid_customer_ids, accounts_transformed.customer_id == valid_customer_ids.customer_id_ref, 'inner') \
+                .drop('customer_id_ref')
+            loans_transformed = loans_transformed \
+                .join(valid_customer_ids, loans_transformed.customer_id == valid_customer_ids.customer_id_ref, 'inner') \
+                .drop('customer_id_ref')
+
+            valid_account_ids = accounts_transformed.select(col('id').alias('account_id_ref')).distinct()
+            transactions_transformed = transactions_transformed \
+                .join(valid_account_ids, transactions_transformed.account_id == valid_account_ids.account_id_ref, 'inner') \
+                .drop('account_id_ref')
+
+            logger.info(
+                "Post-FK filter counts -> customers: %s, accounts: %s, transactions: %s, loans: %s",
+                customers_transformed.count(),
+                accounts_transformed.count(),
+                transactions_transformed.count(),
+                loans_transformed.count(),
+            )
             
             # Load to PostgreSQL
             logger.info("\n[3/3] Loading to PostgreSQL...")
+            self.truncate_target_tables()
             self.write_to_postgres(customers_transformed, 'customers')
             self.write_to_postgres(accounts_transformed, 'accounts')
             self.write_to_postgres(transactions_transformed, 'transactions')

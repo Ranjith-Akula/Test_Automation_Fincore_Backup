@@ -105,7 +105,7 @@ data_docs_sites:
     show_how_to_buttons: false
     store_backend:
       class_name: TupleFilesystemStoreBackend
-      base_directory: /workspaces/Test_Automation_Fincore_Backup/tests/reports/dq_good/
+      base_directory: ../../../reports/dq_good/
     site_index_builder:
       class_name: DefaultSiteIndexBuilder
   dq_bad_site:
@@ -113,7 +113,7 @@ data_docs_sites:
     show_how_to_buttons: false
     store_backend:
       class_name: TupleFilesystemStoreBackend
-      base_directory: /workspaces/Test_Automation_Fincore_Backup/tests/reports/dq_bad/
+      base_directory: ../../../reports/dq_bad/
     site_index_builder:
       class_name: DefaultSiteIndexBuilder
 

@@ -4,8 +4,6 @@ import json
 import requests
 from datetime import datetime
 from pytest_bdd import scenarios, given, when, then, parsers
-from dotenv import load_dotenv
-load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
 from tests.api.steps.common_steps import *
 
 

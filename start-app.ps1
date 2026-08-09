@@ -5,32 +5,32 @@ $ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  🚀 FinCore Bank - Application Startup" -ForegroundColor Cyan
+Write-Host "  FinCore Bank - Application Startup" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Check prerequisites
-Write-Host "[1/4] ⚙️  Checking prerequisites..." -ForegroundColor Yellow
+Write-Host "[1/4] Checking prerequisites..." -ForegroundColor Yellow
 
 try {
     $nodeVersion = node --version
-    Write-Host "  ✓ Node.js: $nodeVersion" -ForegroundColor Green
+    Write-Host "  [OK] Node.js: $nodeVersion" -ForegroundColor Green
 } catch {
-    Write-Host "  ✗ Node.js not found. Please install Node.js 20+" -ForegroundColor Red
+    Write-Host "  [ERROR] Node.js not found. Please install Node.js 20+" -ForegroundColor Red
     exit 1
 }
 
 try {
     $npmVersion = npm --version
-    Write-Host "  ✓ npm: $npmVersion" -ForegroundColor Green
+    Write-Host "  [OK] npm: $npmVersion" -ForegroundColor Green
 } catch {
-    Write-Host "  ✗ npm not found" -ForegroundColor Red
+    Write-Host "  [ERROR] npm not found" -ForegroundColor Red
     exit 1
 }
 
 # Setup Backend API
 Write-Host ""
-Write-Host "[2/4] 🔧 Setting up Backend API..." -ForegroundColor Yellow
+Write-Host "[2/4] Setting up Backend API..." -ForegroundColor Yellow
 Set-Location app
 
 if (-Not (Test-Path "node_modules")) {
@@ -43,11 +43,11 @@ if (-Not (Test-Path ".env")) {
     Copy-Item .env.example .env
 }
 
-Write-Host "  ✓ Backend ready" -ForegroundColor Green
+Write-Host "  [OK] Backend ready" -ForegroundColor Green
 
 # Setup Frontend UI
 Write-Host ""
-Write-Host "[3/4] 🔧 Setting up Frontend UI..." -ForegroundColor Yellow
+Write-Host "[3/4] Setting up Frontend UI..." -ForegroundColor Yellow
 Set-Location client
 
 if (-Not (Test-Path "node_modules")) {
@@ -60,7 +60,7 @@ if (-Not (Test-Path ".env")) {
     Copy-Item .env.example .env
 }
 
-Write-Host "  ✓ Frontend ready" -ForegroundColor Green
+Write-Host "  [OK] Frontend ready" -ForegroundColor Green
 
 Set-Location ..\..
 
@@ -72,15 +72,15 @@ if (-Not (Test-Path "logs")) {
 # Start services
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  🚀 Starting Services" -ForegroundColor Cyan
+Write-Host "  Starting Services" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-Write-Host "🌐 Backend API:      http://localhost:4000/api/v1" -ForegroundColor Green
-Write-Host "🌐 Swagger Docs:    http://localhost:4000/api/docs" -ForegroundColor Green
-Write-Host "🌐 Frontend UI:     http://localhost:3000" -ForegroundColor Green
+Write-Host "Backend API:       http://localhost:4000/api/v1" -ForegroundColor Green
+Write-Host "Swagger Docs:      http://localhost:4000/api/docs" -ForegroundColor Green
+Write-Host "Frontend UI:       http://localhost:3000" -ForegroundColor Green
 Write-Host ""
-Write-Host "🗄️  Database:        localhost:5432 (ensure PostgreSQL is running)" -ForegroundColor Yellow
+Write-Host "Database:          localhost:5432 (ensure PostgreSQL is running)" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Press Ctrl+C to stop all services" -ForegroundColor Blue
 Write-Host ""
@@ -104,7 +104,7 @@ $frontendJob = Start-Job -ScriptBlock {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "  ✓ All services started!" -ForegroundColor Green
+Write-Host "  [OK] All services started!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Logs:" -ForegroundColor Blue
@@ -136,5 +136,5 @@ try {
     Write-Host "Stopping services..." -ForegroundColor Yellow
     Get-Job | Stop-Job
     Get-Job | Remove-Job
-    Write-Host "✓ Services stopped" -ForegroundColor Green
+    Write-Host "[OK] Services stopped" -ForegroundColor Green
 }

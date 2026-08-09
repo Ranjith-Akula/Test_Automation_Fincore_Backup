@@ -1,12 +1,24 @@
 import os
 from urllib.parse import urlparse
+from pathlib import Path
 import requests
 from pytest_bdd import given, when, then, parsers
 from dotenv import load_dotenv
 
-load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
+REPO_ROOT = Path(__file__).resolve().parents[3]
+load_dotenv(REPO_ROOT / "app" / ".env")
+load_dotenv(REPO_ROOT / "pipeline" / ".env")
 
 API_BASE_URL = os.getenv("API_BASE_URL")
+if not API_BASE_URL:
+    api_port = os.getenv("API_PORT")
+    if api_port:
+        API_BASE_URL = f"http://localhost:{api_port}/api/v1"
+
+if not API_BASE_URL:
+    raise RuntimeError(
+        "Missing API_BASE_URL. Set API_BASE_URL in pipeline/.env or API_PORT in app/.env."
+    )
 
 
 @given("I am authenticated")

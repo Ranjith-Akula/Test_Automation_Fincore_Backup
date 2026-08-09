@@ -4,15 +4,9 @@ import requests
 from pytest_bdd import scenarios, given, when, then, parsers
 import psycopg2
 import psycopg2.extras
-from dotenv import load_dotenv
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 from tests.api.steps.common_steps import *
-
-
-load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
-
-API_BASE_URL = os.getenv("API_BASE_URL")
 
 scenarios('../features/transactions.feature')
 

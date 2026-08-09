@@ -1,14 +1,33 @@
 import pytest
 import requests
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from pytest_bdd import scenarios, given, when, then, parsers
 from tests.api.steps.common_steps import *
 
-load_dotenv("/workspaces/Test_Automation_Fincore_Backup/app/.env")
+REPO_ROOT = Path(__file__).resolve().parents[3]
+load_dotenv(REPO_ROOT / "app" / ".env")
+load_dotenv(REPO_ROOT / "pipeline" / ".env")
 
 API_BASE_URL = os.getenv("API_BASE_URL")
+if not API_BASE_URL:
+    api_port = os.getenv("API_PORT")
+    if api_port:
+        API_BASE_URL = f"http://localhost:{api_port}/api/v1"
 
+TEST_USER_USERNAME = os.getenv("TEST_USER_USERNAME")
+TEST_USER_PASSWORD = os.getenv("TEST_USER_PASSWORD")
+
+if not API_BASE_URL:
+    raise RuntimeError(
+        "Missing API_BASE_URL. Set API_BASE_URL in pipeline/.env or API_PORT in app/.env."
+    )
+
+if not TEST_USER_USERNAME or not TEST_USER_PASSWORD:
+    raise RuntimeError(
+        "Missing TEST_USER_USERNAME/TEST_USER_PASSWORD. Set them in app/.env or pipeline/.env."
+    )
 scenarios('../features/authentication.feature')
 
 
@@ -30,8 +49,8 @@ def missing_credentials():
 @when(parsers.parse('I POST valid credentials to "{endpoint}"'), target_fixture="api_response")
 def post_valid_credentials(api_client, endpoint):
     payload = {
-        "username": os.getenv("TEST_USER_USERNAME"),
-        "password": os.getenv("TEST_USER_PASSWORD")
+        "username": TEST_USER_USERNAME,
+        "password": TEST_USER_PASSWORD
     }
     return api_client.post(f"{API_BASE_URL}{endpoint}", json=payload)
 
@@ -39,7 +58,7 @@ def post_valid_credentials(api_client, endpoint):
 @when(parsers.parse('I POST wrong password to "{endpoint}"'), target_fixture="api_response")
 def post_wrong_password(api_client, endpoint):
     payload = {
-        "username": os.getenv("TEST_USER_USERNAME"),
+        "username": TEST_USER_USERNAME,
         "password": "wrong_password"
     }
     return api_client.post(f"{API_BASE_URL}{endpoint}", json=payload)
