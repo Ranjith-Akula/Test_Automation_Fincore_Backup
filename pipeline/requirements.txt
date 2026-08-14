@@ -19,3 +19,4 @@ pytest
 pytest-bdd
 pytest-html
 requests
+pytest-playwright

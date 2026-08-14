@@ -5,8 +5,9 @@ import requests
 from dotenv import load_dotenv
 from pathlib import Path
 import time
-# from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright
 from datetime import datetime
+import pytest_html
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(REPO_ROOT / "app" / ".env")
@@ -54,7 +55,7 @@ def api_client(auth_token):
     session.headers.update({"Authorization": f"Bearer {auth_token}"})
     return session
 
-'''
+
 # ---------- Playwright fixtures ----------
 
 @pytest.fixture(scope="session")
@@ -73,7 +74,7 @@ def browser(playwright_instance):
 @pytest.fixture
 def context(browser):
     """Creates a new browser context for each test, ensuring isolation"""
-    context = browser.new_context()
+    context = browser.new_context(base_url=BASE_URL)
     yield context
     context.close()
 
@@ -102,13 +103,38 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
     if report.when == "call" and report.failed:
-        page = item.funcargs.get("page")
+        page = None
+        request_obj = item.funcargs.get("request")
+        if request_obj:
+            try:
+                page = request_obj.getfixturevalue("page")
+            except pytest.FixtureLookupError:
+                pass
+            if page is None:
+                try:
+                    login_page = request_obj.getfixturevalue("login_page")
+                    page = getattr(login_page, "page", None)
+                except pytest.FixtureLookupError:
+                    pass
         if page:
-            screenshot_dir = Path("tests/reports/screenshots")
-            screenshot_dir.mkdir(parents=True, exist_ok=True)
-            safe_name = item.name.replace("/", "_").replace(" ", "_")
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            path = screenshot_dir / f"{safe_name}_{timestamp}.png"
-            page.screenshot(path=str(path))
+            try:
+                screenshot_dir = Path("tests/reports/screenshots")
+                screenshot_dir.mkdir(parents=True, exist_ok=True)
+                safe_name = item.name.replace("/", "_").replace(" ", "_")
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                path = screenshot_dir / f"{safe_name}_{timestamp}.png"
+                page.screenshot(path=str(path))
+                # Embed screenshot in the pytest-html report
+                try:
+                    from pytest_html import extras as html_extras
+                    png_b64 = page.screenshot()
+                    import base64
+                    b64 = base64.b64encode(png_b64).decode("utf-8")
+                    if not hasattr(report, "extras"):
+                        report.extras = []
+                    report.extras.append(html_extras.image(b64, mime_type="image/png"))
+                except Exception:
+                    pass
+            except Exception:
+                pass
             
-'''
