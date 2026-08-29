@@ -32,7 +32,7 @@ def redirected_to_dashboard(page):
 
 @when("I enter wrong password and click login")
 def enter_wrong_pwd(login_page, valid_credentials):
-    login_page.login(valid_credentials["username"], "wrongpassword")
+    login_page.login(valid_credentials["username"], "wrongpassword", wait_for_success=False)
 
 @then("an error message is displayed on screen")
 def error_message_displayed(login_page):

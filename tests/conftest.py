@@ -90,9 +90,11 @@ def page(context):
 
 @pytest.fixture
 def valid_credentials():
+    username = os.getenv("TEST_USER_USERNAME") or "admin"
+    password = os.getenv("TEST_USER_PASSWORD") or "Admin@123"
     return {
-        "username": os.getenv("TEST_USER_USERNAME"),
-        "password": os.getenv("TEST_USER_PASSWORD"),
+        "username": username,
+        "password": password,
     }
 
 # ---------- Screenshot on failure ----------

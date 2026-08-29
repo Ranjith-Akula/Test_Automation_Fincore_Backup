@@ -10,10 +10,12 @@ class LoginPage:
     def goto(self):
         self.page.goto("/login")
 
-    def login(self, username, password):
+    def login(self, username, password, wait_for_success=True):
         self.username_input.fill(username)
         self.password_input.fill(password)
         self.login_button.click()
+        if wait_for_success:
+            self.page.wait_for_url("**/dashboard", timeout=15000)
 
     def submit_empty(self):
         self.login_button.click()
