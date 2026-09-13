@@ -10,6 +10,13 @@
       "meta": {}
     },
     {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "emi_amount"
+      },
+      "meta": {}
+    },
+    {
       "expectation_type": "expect_column_values_to_be_between",
       "kwargs": {
         "column": "interest_rate",
@@ -24,6 +31,26 @@
         "column": "principal_amount",
         "max_value": null,
         "min_value": 0.001,
+        "strict_min": true
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "loan_duration_days",
+        "max_value": null,
+        "min_value": 0.0,
+        "strict_min": true
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "emi_amount",
+        "max_value": null,
+        "min_value": 0.0,
         "strict_min": true
       },
       "meta": {}
@@ -72,6 +99,6 @@
   ],
   "ge_cloud_id": null,
   "meta": {
-    "great_expectations_version": "0.18.15"
+    "great_expectations_version": "0.18.8"
   }
 }

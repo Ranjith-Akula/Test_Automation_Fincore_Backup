@@ -32,6 +32,14 @@
       "meta": {}
     },
     {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "name",
+        "regex": "^[A-Z0-9\\s]*$"
+      },
+      "meta": {}
+    },
+    {
       "expectation_type": "expect_column_values_to_be_in_set",
       "kwargs": {
         "column": "status",
@@ -47,7 +55,7 @@
       "expectation_type": "expect_column_values_to_be_between",
       "kwargs": {
         "column": "date_of_birth",
-        "max_value": "2026-07-07T08:50:13.013358",
+        "max_value": "2026-09-12T13:24:26.616737",
         "min_value": "01-01-1900"
       },
       "meta": {}
@@ -63,6 +71,6 @@
   ],
   "ge_cloud_id": null,
   "meta": {
-    "great_expectations_version": "0.18.15"
+    "great_expectations_version": "0.18.8"
   }
 }

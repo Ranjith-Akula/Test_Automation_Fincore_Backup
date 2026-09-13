@@ -24,6 +24,11 @@
           "regex": "^[+0-9(][0-9\\s\\-().x]{6,20}$"
         },
         {
+          "type": "expect_column_values_to_match_regex",
+          "column": "name",
+          "regex": "^[A-Z0-9\\s]*$"
+        },
+        {
           "type": "expect_column_values_to_be_in_set",
           "column": "status",
           "value_set": ["active", "inactive", "blocked"]
@@ -118,6 +123,10 @@
           "column": "outstanding_amount"
         },
         {
+          "type": "expect_column_values_to_not_be_null",
+          "column": "emi_amount"
+        },
+        {
           "type": "expect_column_values_to_be_between",
           "column": "interest_rate",
           "min_value": 1.0,
@@ -127,6 +136,20 @@
           "type": "expect_column_values_to_be_between",
           "column": "principal_amount",
           "min_value": 0.001,
+          "strict_min": true,
+		      "max_value": null
+        },
+        {
+          "type": "expect_column_values_to_be_between",
+          "column": "loan_duration_days",
+          "min_value": 0.000,
+          "strict_min": true,
+		      "max_value": null
+        },
+        {
+          "type": "expect_column_values_to_be_between",
+          "column": "emi_amount",
+          "min_value": 0.000,
           "strict_min": true,
 		      "max_value": null
         },

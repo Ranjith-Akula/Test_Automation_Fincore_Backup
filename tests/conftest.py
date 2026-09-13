@@ -1,13 +1,19 @@
 import os
+import sys
 import pytest
 import psycopg2
 import requests
 from dotenv import load_dotenv
 from pathlib import Path
 import time
-from playwright.sync_api import sync_playwright
 from datetime import datetime
 import pytest_html
+from pyspark.sql import SparkSession
+
+try:
+    from playwright.sync_api import sync_playwright
+except ModuleNotFoundError:  # pragma: no cover - only used when UI deps are absent
+    sync_playwright = None
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(REPO_ROOT / "app" / ".env")
@@ -61,6 +67,8 @@ def api_client(auth_token):
 @pytest.fixture(scope="session")
 def playwright_instance():
     """Starts the actual Playwright engine/driver process"""
+    if sync_playwright is None:
+        pytest.skip("Playwright is not installed in this environment.")
     with sync_playwright() as p:
         yield p
 
@@ -139,4 +147,19 @@ def pytest_runtest_makereport(item, call):
                     pass
             except Exception:
                 pass
-            
+
+
+@pytest.fixture(scope="session")
+def spark():
+    """Session-scoped Spark session — created once, reused across all tests."""
+    os.environ.setdefault("PYSPARK_PYTHON", sys.executable)
+    os.environ.setdefault("PYSPARK_DRIVER_PYTHON", sys.executable)
+
+    spark = (
+        SparkSession.builder
+        .master("local[*]")
+        .appName("fincore-pipeline-tests")
+        .getOrCreate()
+    )
+    yield spark
+    spark.stop()

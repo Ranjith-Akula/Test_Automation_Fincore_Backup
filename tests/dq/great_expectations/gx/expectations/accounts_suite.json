@@ -54,6 +54,6 @@
   ],
   "ge_cloud_id": null,
   "meta": {
-    "great_expectations_version": "0.18.15"
+    "great_expectations_version": "0.18.8"
   }
 }

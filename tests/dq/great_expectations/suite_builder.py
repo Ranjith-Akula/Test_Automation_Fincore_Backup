@@ -12,6 +12,31 @@ with open(RULES_CONFIG_PATH) as f:
 
 context = gx.get_context(context_root_dir=GX_ROOT)
 
+DATE_AND_TIMESTAMP_COLUMNS = {
+    "transaction_date",
+    "date_of_birth",
+    "start_date",
+    "end_date",
+    "created_at",
+    "updated_at",
+}
+
+
+def normalize_expectation(expectation):
+    """Use the supported timestamp-aware expectation for date columns instead of regex on a timestamp type."""
+    if expectation.get("type") == "expect_column_values_to_match_regex":
+        column_name = expectation.get("column")
+        if column_name in DATE_AND_TIMESTAMP_COLUMNS:
+            regex_value = expectation.get("regex")
+            if regex_value and regex_value.startswith("^") and "\\d{4}-\\d{2}-\\d{2}" in regex_value:
+                return {
+                    "type": "expect_column_values_to_match_strftime_format",
+                    "column": column_name,
+                    "strftime_format": "%Y-%m-%d",
+                }
+    return expectation
+
+
 for table in config["tables"]:
     suite_name = table["suite_name"]
     table_name = table["table_name"]
@@ -33,17 +58,19 @@ for table in config["tables"]:
     print(f"Validator ready for: {table_name}")
     
     for expectations in table["expectations"]:
-        if expectations["type"] == "SKIP_custom":
-            print(f"Skipping: {expectations.get('comment', '')}")
+        expectation = normalize_expectation(expectations)
+
+        if expectation["type"] == "SKIP_custom":
+            print(f"Skipping: {expectation.get('comment', '')}")
             continue
 
-        if expectations.get("max_value") == "today":
-            expectations["max_value"] = datetime.now().isoformat()
-        if expectations.get("min_value") == "today":
-            expectations["min_value"] = datetime.now().isoformat()
+        if expectation.get("max_value") == "today":
+            expectation["max_value"] = datetime.now().isoformat()
+        if expectation.get("min_value") == "today":
+            expectation["min_value"] = datetime.now().isoformat()
 
-        params = {k: v for k, v in expectations.items() if k != "type"}
-        expectation_fn = getattr(validator, expectations["type"])
+        params = {k: v for k, v in expectation.items() if k != "type"}
+        expectation_fn = getattr(validator, expectation["type"])
         expectation_fn(**params)
 
     validator.save_expectation_suite(discard_failed_expectations=False)

@@ -65,10 +65,11 @@ def compute_loan_duration(df: DataFrame) -> DataFrame:
         # start_date: 2023-01-01, end_date: 2043-01-01
         # loan_duration_days: 7305
     """
-    return df.withColumn(
+    df = df.withColumn(
         "loan_duration_days",
         datediff(col("end_date"), col("start_date"))
     )
+    return df.withColumn("loan_duration", col("loan_duration_days"))
 
 
 def compute_emi(df: DataFrame) -> DataFrame:
