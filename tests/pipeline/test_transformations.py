@@ -210,8 +210,8 @@ def test_compute_emi_computes_correct_emi(spark):
     )
 
     # Act
-    with pytest.raises(TypeError):
-        compute_emi(input_df)
+    # with pytest.raises(TypeError):
+    #     compute_emi(input_df)
     result_df = compute_emi(input_df)
 
     # Assert

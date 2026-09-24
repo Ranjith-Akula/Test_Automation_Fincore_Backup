@@ -10,6 +10,7 @@ with open(RULES_CONFIG_PATH) as f:
     config = json.load(f)
 
 context = gx.get_context(context_root_dir=GX_ROOT)
+has_validation_failures = False
 
 for table in config["tables"]:
     suite_name = table["suite_name"]
@@ -27,6 +28,7 @@ for table in config["tables"]:
     )
 
     results = validator.validate()
+    has_validation_failures = has_validation_failures or (not results.success)
 
     # print summary
     print(f"\nTable: {table_name}")
@@ -40,3 +42,6 @@ for table in config["tables"]:
             print(f"  FAILED: {result.expectation_config.expectation_type}")
             print(f"  Column: {result.expectation_config.kwargs.get('column', 'table-level')}")
             print(f"  Details: {result.result}")
+
+if has_validation_failures:
+    sys.exit(1)

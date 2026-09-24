@@ -7,7 +7,7 @@ import os
 import sys
 from datetime import datetime
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import col, lit, current_date, current_timestamp
 from dotenv import load_dotenv
 import logging
 import psycopg2
@@ -146,6 +146,9 @@ class FincorePipeline:
         
         # Parse date_of_birth
         df = standardise_date(df, 'date_of_birth', 'dd/MM/yyyy')
+
+        # Drop customer rows that would violate the email constraint
+        df = df.filter(col('email').isNotNull() & (col('email') != ''))
         
         # Map status codes to labels
         status_mapping = {1: 'active', 2: 'inactive', 3: 'blocked'}
@@ -153,6 +156,15 @@ class FincorePipeline:
         
         # Rename status_code to status
         df = df.withColumnRenamed('status_code', 'status')
+
+        # Drop customer rows that would violate table constraints
+        df = df.filter(
+            col('email').isNotNull()
+            & (col('email') != '')
+            & col('date_of_birth').isNotNull()
+            & (col('date_of_birth') < current_date())
+            & col('status').isin('active', 'inactive', 'blocked')
+        )
         
         # Remove duplicates based on email
         df = remove_duplicates(df, ['email'])
@@ -183,6 +195,17 @@ class FincorePipeline:
         
         # Fill default currency
         df = fill_default_currency(df, 'currency', 'USD')
+
+        # Drop rows that would violate table constraints
+        df = df.filter(
+            # col('account_type').isin('savings', 'current', 'fixed_deposit')
+            # & 
+            col('status').isin('active', 'dormant', 'closed')
+            & (
+                (col('account_type') != 'savings')
+                | (col('balance') >= 0)
+            )
+        )
         
         # Remove duplicates based on account_number
         df = remove_duplicates(df, ['account_number'])
@@ -216,6 +239,14 @@ class FincorePipeline:
         
         # Fill default currency
         df = fill_default_currency(df, 'currency', 'USD')
+
+        # Drop rows that would violate table constraints
+        df = df.filter(
+            (col('amount') > 0)
+            & col('transaction_date').isNotNull()
+            & (col('transaction_date') <= current_timestamp())
+            & col('status').isin('completed', 'pending', 'failed', 'reversed')
+        )
         
         # Remove duplicates based on reference_id
         df = remove_duplicates(df, ['reference_id'])
@@ -253,6 +284,19 @@ class FincorePipeline:
         
         # Compute EMI amount
         df = compute_emi(df)
+
+        # Drop rows that would violate table constraints
+        df = df.filter(
+            col('loan_type').isin('home', 'personal', 'auto', 'education')
+            & col('outstanding_amount').isNotNull()
+            & col('interest_rate').isNotNull()
+            & (col('interest_rate') >= 1)
+            & (col('interest_rate') <= 30)
+            & col('start_date').isNotNull()
+            & col('end_date').isNotNull()
+            & (col('end_date') > col('start_date'))
+            & col('status').isin('active', 'closed', 'defaulted', 'restructured')
+        )
         
         # Select final columns
         df = df.select(
