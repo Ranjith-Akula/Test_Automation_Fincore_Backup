@@ -76,7 +76,7 @@ pipeline {
             steps {
                 // Loads clean data so downstream tests start from a known state.
                 // Replace with your real pipeline entry point.
-                bat '%PY% pipeline\\run_pipeline.py --dataset good_data'
+                bat '%PY% pipeline\\run_pipeline.ps1 good_data'
             }
         }
 
