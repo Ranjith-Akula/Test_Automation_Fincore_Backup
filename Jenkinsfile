@@ -116,15 +116,13 @@ pipeline {
 
         stage('4. DQ Validation (UC1)') {
             steps {
-                // No catchError here on purpose: if GX fails, the stage fails and
-                // Jenkins skips every later stage. Bad data must not proceed.
-                script {
-                    // The local GX config_variables.yml is intentionally ignored by Git.
-                    // Supply its connection variable from Jenkins credentials instead.
-                    $env:fincore_pg_conn = "postgresql+psycopg2://${env:DB_CREDS_USR}:${env:DB_CREDS_PSW}@localhost:5432/fincore"
-                        bat '%PY% tests\\dq\\run_gx.py'
-                    
-                }
+        // No catchError on purpose: if GX fails, the stage fails and
+        // Jenkins skips every later stage. Bad data must not proceed.
+        // config_variables.yml is gitignored, so GX reads this env var instead.
+        bat '''
+            set fincore_pg_conn=postgresql+psycopg2://%DB_CREDS_USR%:%DB_CREDS_PSW%@127.0.0.1:5432/fincore
+            %PY% tests\\dq\\run_gx.py
+        '''
             }
         }
 
