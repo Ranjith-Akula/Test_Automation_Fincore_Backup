@@ -3,7 +3,7 @@ pipeline {
 
     options {
         timestamps()                       // prefix console lines with time
-        timeout(time: 10, unit: 'MINUTES') // kill hung builds
+        timeout(time: 30, unit: 'MINUTES') // kill hung builds
     }
 
     environment {
@@ -12,7 +12,7 @@ pipeline {
         DB_PORT      = '5432'
         DB_NAME      = 'fincore'
         DB_CREDS     = credentials('fincore-db-creds') // gives DB_CREDS_USR / DB_CREDS_PSW
-        API_BASE_URL = 'http://localhost:5000/api'
+        API_BASE_URL = 'http://localhost:4000/api'
         UI_BASE_URL  = 'http://localhost:3000'
 
         // --- Paths ---
