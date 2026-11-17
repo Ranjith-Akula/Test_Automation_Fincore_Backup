@@ -17,6 +17,10 @@ pipeline {
         PYTHON_EXE = 'C:\\Users\\Ranjith_Akula\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'
         JAVA_HOME = "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe"
         PATH         = "${WORKSPACE}\\.venv\\Scripts;${JAVA_HOME}\\bin;${env.PATH}"
+        // PySpark's launcher looks for "python3" by default; Windows only has python.exe.
+        PYSPARK_PYTHON        = "${WORKSPACE}\\.venv\\Scripts\\python.exe"
+        PYSPARK_DRIVER_PYTHON = "${WORKSPACE}\\.venv\\Scripts\\python.exe"
+        SPARK_HOME            = "${WORKSPACE}\\.venv\\Lib\\site-packages\\pyspark"
 
         // --- Paths ---
         REPORT_DIR   = 'tests\\reports'
