@@ -88,6 +88,16 @@ pipeline {
 				// 		if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 				// 	'''
 				// }
+                // temp step to check path issue
+                powershell '''
+                    Write-Host "JAVA_HOME      = $env:JAVA_HOME"
+                    Write-Host "SPARK_HOME     = $env:SPARK_HOME"
+                    Write-Host "PYSPARK_PYTHON = $env:PYSPARK_PYTHON"
+                    Test-Path "$env:JAVA_HOME\\bin\\java.exe"
+                    Test-Path "$env:SPARK_HOME\\bin\\spark-submit.cmd"
+                    Test-Path "$env:PYSPARK_PYTHON"
+                    Get-ChildItem -Directory pipeline | Select-Object Name   # is there a venv folder here?
+                '''
 		
 				// 3b. Load good_data into PostgreSQL. run_pipeline.ps1 resolves ..\\data\\good_data
 				//     relative to its own folder, so run it from inside pipeline\\.
