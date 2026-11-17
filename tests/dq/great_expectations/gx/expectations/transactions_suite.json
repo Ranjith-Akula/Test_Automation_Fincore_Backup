@@ -54,7 +54,7 @@
       "expectation_type": "expect_column_values_to_be_between",
       "kwargs": {
         "column": "transaction_date",
-        "max_value": "2026-09-17T12:40:08.951913",
+        "max_value": "2026-11-17T19:09:15.669071",
         "min_value": null
       },
       "meta": {}

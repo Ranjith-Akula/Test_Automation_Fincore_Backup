@@ -55,7 +55,7 @@
       "expectation_type": "expect_column_values_to_be_between",
       "kwargs": {
         "column": "date_of_birth",
-        "max_value": "2026-09-17T12:40:03.574195",
+        "max_value": "2026-11-17T19:09:08.315409",
         "min_value": "01-01-1900"
       },
       "meta": {}
