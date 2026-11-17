@@ -123,7 +123,7 @@ pipeline {
                     // Supply its connection variable from Jenkins credentials instead.
                     $env:fincore_pg_conn = "postgresql+psycopg2://${env:DB_CREDS_USR}:${env:DB_CREDS_PSW}@localhost:5432/fincore"
                         bat '%PY% tests\\dq\\run_gx.py'
-                    }
+                    
                 }
             }
         }
