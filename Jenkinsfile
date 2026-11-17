@@ -52,19 +52,23 @@ pipeline {
                 // 2c. Reinstall only when requirements.txt differs from the copy saved
                 //     after the last successful install (fc returns non-zero if they differ).
                 bat '''
-                    if not exist .venv ( python -m venv .venv || exit /b 1 )
-                    if not exist %REPORT_DIR% mkdir %REPORT_DIR%
-
-                    fc requirements.txt .venv\\requirements.installed >nul 2>&1
-                    if errorlevel 1 (
-                        echo requirements changed or first run - installing...
-                        %PY% -m pip install -r requirements.txt || exit /b 1
-                        %PY% -m playwright install chromium    || exit /b 1
-                        copy /Y requirements.txt .venv\\requirements.installed >nul
-                    ) else (
-                        echo requirements unchanged - skipping install
-                    )
-                '''
+					if not exist .venv ( "%PYTHON_EXE%" -m venv .venv || exit /b 1 )
+					if not exist %REPORT_DIR% mkdir %REPORT_DIR%
+				
+					rem Merge every requirements file into one (edit this list to match your repo)
+					(for %%f in (data\\requirements.txt pipeline\\requirements.txt) do @(type %%f & echo.)) > .venv\\requirements.combined
+				
+					rem Reinstall only if the merged list changed since the last successful install
+					fc .venv\\requirements.combined .venv\\requirements.installed >nul 2>&1
+					if errorlevel 1 (
+						echo requirements changed or first run - installing...
+						%PY% -m pip install -r .venv\\requirements.combined || exit /b 1
+						%PY% -m playwright install chromium                 || exit /b 1
+						copy /Y .venv\\requirements.combined .venv\\requirements.installed >nul
+					) else (
+						echo requirements unchanged - skipping install
+					)
+				'''	
             }
         }
 
