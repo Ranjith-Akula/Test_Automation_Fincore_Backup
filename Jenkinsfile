@@ -12,7 +12,7 @@ pipeline {
         DB_PORT      = '5432'
         DB_NAME      = 'fincore'
         DB_CREDS     = credentials('fincore-db-creds') // gives DB_CREDS_USR / DB_CREDS_PSW
-        API_BASE_URL = 'http://localhost:4000/api'
+        API_BASE_URL = 'http://localhost:4000/api/v1'
         UI_BASE_URL  = 'http://localhost:3000'
 
         // --- Paths ---
