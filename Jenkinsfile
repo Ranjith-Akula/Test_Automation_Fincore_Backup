@@ -16,6 +16,7 @@ pipeline {
         UI_BASE_URL  = 'http://localhost:3000'
         PYTHON_EXE = 'C:\\Users\\Ranjith_Akula\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'
         JAVA_HOME = "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe"
+        PATH         = "${WORKSPACE}\\.venv\\Scripts;${JAVA_HOME}\\bin;${env.PATH}"
 
         // --- Paths ---
         REPORT_DIR   = 'tests\\reports'
