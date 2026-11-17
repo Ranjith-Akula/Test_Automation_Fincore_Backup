@@ -82,12 +82,12 @@ pipeline {
 			steps {
 				// 3a. Generate test data. The script's own hint says to run it from inside data\,
 				//     so run it there to make sure its output lands in data\good_data.
-				dir('data') {
-					powershell '''
-						& ..\\.venv\\Scripts\\python generate_data.py
-						if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-					'''
-				}
+				// dir('data') {
+				// 	powershell '''
+				// 		& ..\\.venv\\Scripts\\python generate_data.py
+				// 		if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+				// 	'''
+				// }
 		
 				// 3b. Load good_data into PostgreSQL. run_pipeline.ps1 resolves ..\\data\\good_data
 				//     relative to its own folder, so run it from inside pipeline\\.
