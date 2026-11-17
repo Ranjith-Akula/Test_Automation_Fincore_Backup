@@ -33,10 +33,10 @@ pipeline {
 
         stage('2. Environment Check') {
             steps {
-                // 2a. Verify Postgres (5432), backend (5000) and frontend (3000) are listening.
+                // 2a. Verify Postgres (5432), backend (4000) and frontend (3000) are listening.
                 //     Jenkins does not start them; you must start them locally first.
                 powershell '''
-                    $ports = @{ "PostgreSQL" = 5432; "Backend API" = 5000; "Frontend UI" = 3000 }
+                    $ports = @{ "PostgreSQL" = 5432; "Backend API" = 4000; "Frontend UI" = 3000 }
                     $failed = $false
                     foreach ($name in $ports.Keys) {
                         $ok = (Test-NetConnection -ComputerName localhost -Port $ports[$name] -WarningAction SilentlyContinue).TcpTestSucceeded
