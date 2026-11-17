@@ -95,7 +95,7 @@ def generate_customers(is_good=True):
                 status_code, created_date_str, kyc_verified
             ])
     
-    print(f"  ✓ Generated {NUM_CUSTOMERS} customers")
+    print(f"  [OK] Generated {NUM_CUSTOMERS} customers")
 
 
 def generate_accounts(is_good=True):
@@ -147,7 +147,7 @@ def generate_accounts(is_good=True):
                 balance, currency or '', status, opened_date_str
             ])
     
-    print(f"  ✓ Generated {NUM_ACCOUNTS} accounts")
+    print(f"  [OK] Generated {NUM_ACCOUNTS} accounts")
 
 
 def generate_transactions(is_good=True):
@@ -205,7 +205,7 @@ def generate_transactions(is_good=True):
                 transaction_date_str, description, status, reference_id
             ])
     
-    print(f"  ✓ Generated {NUM_TRANSACTIONS} transactions")
+    print(f"  [OK] Generated {NUM_TRANSACTIONS} transactions")
 
 
 def generate_loans(is_good=True):
@@ -276,7 +276,7 @@ def generate_loans(is_good=True):
                 end_date_str, status
             ])
     
-    print(f"  ✓ Generated {NUM_LOANS} loans")
+    print(f"  [OK] Generated {NUM_LOANS} loans")
 
 
 def main():
