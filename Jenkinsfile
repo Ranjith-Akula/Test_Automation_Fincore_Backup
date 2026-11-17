@@ -39,7 +39,8 @@ pipeline {
                     $ports = @{ "PostgreSQL" = 5432; "Backend API" = 4000; "Frontend UI" = 3000 }
                     $failed = $false
                     foreach ($name in $ports.Keys) {
-                        $ok = (Test-NetConnection -ComputerName localhost -Port $ports[$name] -WarningAction SilentlyContinue).TcpTestSucceeded
+                        // $ok = (Test-NetConnection -ComputerName localhost -Port $ports[$name] -WarningAction SilentlyContinue).TcpTestSucceeded
+                        $ok = (Test-NetConnection -ComputerName 127.0.0.1 -Port $ports[$name] -WarningAction SilentlyContinue).TcpTestSucceeded
                         if ($ok) { Write-Host "OK   : $name on port $($ports[$name])" }
                         else     { Write-Host "DOWN : $name on port $($ports[$name])"; $failed = $true }
                     }
