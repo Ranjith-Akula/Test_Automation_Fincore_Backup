@@ -117,12 +117,25 @@ pipeline {
         stage('4. DQ Validation (UC1)') {
             steps {
                 powershell '''
+                    $gxRoot = Join-Path $env:WORKSPACE 'tests\\dq\\great_expectations\\gx'
+                    $configDirectory = Join-Path $gxRoot 'uncommitted'
+                    $configPath = Join-Path $configDirectory 'config_variables.yml'
                     $dbUser = [uri]::EscapeDataString($env:DB_CREDS_USR)
                     $dbPassword = [uri]::EscapeDataString($env:DB_CREDS_PSW)
-                    $env:fincore_pg_conn = "postgresql+psycopg2://${dbUser}:${dbPassword}@$($env:DB_HOST):$($env:DB_PORT)/$($env:DB_NAME)"
-        
-                    & .venv\\Scripts\\python tests\\dq\\run_gx.py
-                    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                    $connectionString = "postgresql+psycopg2://${dbUser}:${dbPassword}@$($env:DB_HOST):$($env:DB_PORT)/$($env:DB_NAME)"
+                    $configContent = "fincore_pg_conn: '$connectionString'"
+
+                    New-Item -ItemType Directory -Force -Path $configDirectory | Out-Null
+                    Set-Content -Path $configPath -Value $configContent -Encoding ascii
+
+                    try {
+                        & .venv\\Scripts\\python tests\\dq\\run_gx.py
+                        $pythonExitCode = $LASTEXITCODE
+                    } finally {
+                        Remove-Item -LiteralPath $configPath -Force -ErrorAction SilentlyContinue
+                    }
+
+                    if ($pythonExitCode -ne 0) { exit $pythonExitCode }
                 '''
             }
         }
