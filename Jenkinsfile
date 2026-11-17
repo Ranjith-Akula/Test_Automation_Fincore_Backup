@@ -73,12 +73,18 @@ pipeline {
         }
 
         stage('3. Load Data') {
-            steps {
-                // Loads clean data so downstream tests start from a known state.
-                // Replace with your real pipeline entry point.
-                bat '%PY% pipeline\\run_pipeline.ps1 good_data'
-            }
-        }
+			steps {
+			powershell '''
+				# 3a. Generate test data (skip this if good_data is committed to the repo)
+				& .venv\\Scripts\\python data\\generate_data.py
+				if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+	
+				# 3b. Load good_data into PostgreSQL
+				& .\\pipeline\\run_pipeline.ps1 -DataFolder good_data
+				if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+			'''
+			}
+		}
 
         stage('4. DQ Validation (UC1)') {
             steps {
