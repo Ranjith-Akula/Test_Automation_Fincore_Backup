@@ -121,9 +121,7 @@ pipeline {
                 script {
                     // The local GX config_variables.yml is intentionally ignored by Git.
                     // Supply its connection variable from Jenkins credentials instead.
-                    def dbUser = java.net.URLEncoder.encode(env.DB_CREDS_USR, 'UTF-8').replace('+', '%20')
-                    def dbPassword = java.net.URLEncoder.encode(env.DB_CREDS_PSW, 'UTF-8').replace('+', '%20')
-                    withEnv(["fincore_pg_conn=postgresql+psycopg2://${dbUser}:${dbPassword}@${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}"]) {
+                    $env:fincore_pg_conn = "postgresql+psycopg2://${env:DB_CREDS_USR}:${env:DB_CREDS_PSW}@localhost:5432/fincore"
                         bat '%PY% tests\\dq\\run_gx.py'
                     }
                 }
