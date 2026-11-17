@@ -144,7 +144,20 @@ pipeline {
             steps {
                 // catchError marks the stage/build FAILED but lets the pipeline continue.
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    bat '%PY% -m pytest tests\\api --html=%REPORT_DIR%\\api_report.html --self-contained-html'
+                    withCredentials([usernamePassword(
+                        credentialsId: 'fincore-api-test-user',
+                        usernameVariable: 'TEST_USER_USERNAME',
+                        passwordVariable: 'TEST_USER_PASSWORD'
+                    )]) {
+                        powershell '''
+                            $dbUser = [uri]::EscapeDataString($env:DB_CREDS_USR)
+                            $dbPassword = [uri]::EscapeDataString($env:DB_CREDS_PSW)
+                            $env:DATABASE_URL = "postgresql://${dbUser}:${dbPassword}@$($env:DB_HOST):$($env:DB_PORT)/$($env:DB_NAME)"
+
+                            & .venv\\Scripts\\python -m pytest tests\\api "--html=$($env:REPORT_DIR)\\api_report.html" --self-contained-html
+                            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                        '''
+                    }
                 }
             }
         }
@@ -152,7 +165,21 @@ pipeline {
         stage('6. UI Tests (UC3)') {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    bat '%PY% -m pytest tests\\ui --html=%REPORT_DIR%\\ui_report.html --self-contained-html'
+                    withCredentials([usernamePassword(
+                        credentialsId: 'fincore-api-test-user',
+                        usernameVariable: 'TEST_USER_USERNAME',
+                        passwordVariable: 'TEST_USER_PASSWORD'
+                    )]) {
+                        powershell '''
+                            $dbUser = [uri]::EscapeDataString($env:DB_CREDS_USR)
+                            $dbPassword = [uri]::EscapeDataString($env:DB_CREDS_PSW)
+                            $env:DATABASE_URL = "postgresql://${dbUser}:${dbPassword}@$($env:DB_HOST):$($env:DB_PORT)/$($env:DB_NAME)"
+                            $env:FINCORE_BASE_URL = $env:UI_BASE_URL
+
+                            & .venv\\Scripts\\python -m pytest tests\\ui "--html=$($env:REPORT_DIR)\\ui_report.html" --self-contained-html
+                            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                        '''
+                    }
                 }
             }
         }
@@ -160,7 +187,37 @@ pipeline {
         stage('7. Pipeline Tests (UC4)') {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    bat '%PY% -m pytest tests\\pipeline --html=%REPORT_DIR%\\pipeline_report.html --self-contained-html'
+                    withCredentials([usernamePassword(
+                        credentialsId: 'fincore-api-test-user',
+                        usernameVariable: 'TEST_USER_USERNAME',
+                        passwordVariable: 'TEST_USER_PASSWORD'
+                    )]) {
+                        powershell '''
+                            $dbUser = [uri]::EscapeDataString($env:DB_CREDS_USR)
+                            $dbPassword = [uri]::EscapeDataString($env:DB_CREDS_PSW)
+                            $env:DATABASE_URL = "postgresql://${dbUser}:${dbPassword}@$($env:DB_HOST):$($env:DB_PORT)/$($env:DB_NAME)"
+                            $env:DB_USER = $env:DB_CREDS_USR
+                            $env:DB_PASSWORD = $env:DB_CREDS_PSW
+                            $env:FINCORE_BASE_URL = $env:UI_BASE_URL
+
+                            $gxRoot = Join-Path $env:WORKSPACE 'tests\\dq\\great_expectations\\gx'
+                            $configDirectory = Join-Path $gxRoot 'uncommitted'
+                            $configPath = Join-Path $configDirectory 'config_variables.yml'
+                            $gxConfigContent = "fincore_pg_conn: '$($env:DATABASE_URL -replace '^postgresql://', 'postgresql+psycopg2://')'"
+
+                            New-Item -ItemType Directory -Force -Path $configDirectory | Out-Null
+                            Set-Content -Path $configPath -Value $gxConfigContent -Encoding ascii
+
+                            try {
+                                & .venv\\Scripts\\python -m pytest tests\\pipeline "--html=$($env:REPORT_DIR)\\pipeline_report.html" --self-contained-html
+                                $pythonExitCode = $LASTEXITCODE
+                            } finally {
+                                Remove-Item -LiteralPath $configPath -Force -ErrorAction SilentlyContinue
+                            }
+
+                            if ($pythonExitCode -ne 0) { exit $pythonExitCode }
+                        '''
+                    }
                 }
             }
         }
