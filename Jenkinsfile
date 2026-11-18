@@ -266,7 +266,7 @@ pipeline {
             echo 'All stages passed.'
         }
         failure {
-            // Needs SMTP configured under Manage Jenkins > System
+            echo 'One or more stages failed.'
             mail to: "${env.NOTIFY_EMAIL}",
                  subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: "Build failed. Details: ${env.BUILD_URL}"
