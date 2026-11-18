@@ -14,6 +14,7 @@ pipeline {
         DB_CREDS     = credentials('fincore-db-creds') // gives DB_CREDS_USR / DB_CREDS_PSW
         API_BASE_URL = 'http://localhost:4000/api/v1'
         UI_BASE_URL  = 'http://localhost:3000'
+        VITE_API_URL = '/api/v1'
         PYTHON_EXE = 'C:\\Users\\Ranjith_Akula\\AppData\\Local\\Programs\\Python\\Python311\\python.exe'
         // JAVA_HOME = "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe"
         JAVA_HOME = 'C:\\java\\jdk'
@@ -28,6 +29,7 @@ pipeline {
 
         // --- Paths ---
         REPORT_DIR   = 'tests\\reports'
+        LOCAL_REPORT_DIR = 'C:\\Users\\Ranjith_Akula\\Documents\\GitHub\\Test_Automation_Fincore_Backup\\tests\\reports'
         PY           = '.venv\\Scripts\\python'   // always use the venv's python
         NOTIFY_EMAIL = 'ranjithguptha111@gmail.com'
     }
@@ -247,6 +249,18 @@ pipeline {
             archiveArtifacts artifacts: 'tests/reports/**/*.html, gx/uncommitted/data_docs/**/*',
                              allowEmptyArchive: true
             echo "Final status: ${currentBuild.currentResult}"
+            powershell '''
+                $source = Join-Path $env:WORKSPACE 'tests\\reports'
+                $destination = $env:LOCAL_REPORT_DIR
+
+                if (-not (Test-Path -LiteralPath $source -PathType Container)) {
+                    throw "Report source directory does not exist: $source"
+                }
+
+                New-Item -ItemType Directory -Force -Path $destination | Out-Null
+                Copy-Item -Path (Join-Path $source '*') -Destination $destination -Recurse -Force
+                Write-Host "Reports copied to $destination"
+            '''
         }
         success {
             echo 'All stages passed.'
