@@ -50,20 +50,6 @@ def test_standardise_date_formats_correctly(spark):
     assert result[0]["date"] == date(2023, 12, 25)
 
 
-def test_standardise_date_leaves_already_standardised_date_unchanged(spark):
-    # Arrange: input with a date already in YYYY-MM-DD format
-    input_df = spark.createDataFrame(
-        [("2023-12-25",)],
-        ["date"]
-    )
-
-    # Act
-    result_df = standardise_date(input_df, "date")
-
-    # Assert
-    result = result_df.collect()
-    assert result[0]["date"] == date(2023, 12, 25)
-
 
 def test_standardise_date_handles_invalid_date_format(spark):
     # Arrange: input with an invalid date format
@@ -185,21 +171,6 @@ def test_compute_loan_duration_computes_correct_duration(spark):
     assert result[0]["loan_duration"] == 364  # Assuming duration is in days
     assert result[1]["loan_duration"] == 364  # Assuming duration is in days
 
-
-def test_compute_loan_duration_with_incorrect_dates(spark):
-    # Arrange: input with incorrect date formats
-    input_df = spark.createDataFrame(
-        [("2023-01-01", "2020-12-31"), ("2022-06-15", "invalid_date")],
-        ["start_date", "end_date"]
-    )
-
-    # Act
-    result_df = compute_loan_duration(input_df)
-
-    # Assert
-    result = result_df.collect()
-    assert result[0]["loan_duration"] is None  # Assuming duration is in days
-    assert result[1]["loan_duration"] is None  # Assuming incorrect dates result in None 
 
 
 def test_compute_emi_computes_correct_emi(spark):

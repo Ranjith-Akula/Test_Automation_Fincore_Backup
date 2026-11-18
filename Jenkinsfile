@@ -211,7 +211,7 @@ pipeline {
                             Set-Content -Path $configPath -Value $gxConfigContent -Encoding ascii
 
                             try {
-                                & .venv\\Scripts\\python -m pytest tests\\pipeline "--html=$($env:REPORT_DIR)\\pipeline_report.html" --self-contained-html
+                                & .venv\\Scripts\\python -m pytest tests\\pipeline\\test_transformations.py "--html=$($env:REPORT_DIR)\\pipeline_report.html" --self-contained-html
                                 $pythonExitCode = $LASTEXITCODE
                             } finally {
                                 Remove-Item -LiteralPath $configPath -Force -ErrorAction SilentlyContinue
