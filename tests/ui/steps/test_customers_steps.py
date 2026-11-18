@@ -11,8 +11,7 @@ def customers_page(page, valid_credentials):
     lp = LoginPage(page)
     lp.goto()
     lp.login(valid_credentials["username"], valid_credentials["password"])
-    page.wait_for_load_state("networkidle", timeout=60000)
-    page.wait_for_selector('[data-testid="nav-customers"]', timeout=60000)
+    page.get_by_test_id("nav-customers").wait_for(state="visible")
     cp = CustomersPage(page)
     cp.goto()
     return cp

@@ -12,7 +12,8 @@ class CustomersPage:
 
     def goto(self):
         self.customers_nav_link.click()
-        self.page.wait_for_load_state("networkidle")
+        self.page.get_by_test_id("customers-page").wait_for(state="visible")
+        self.table_rows.first.wait_for(state="visible")
 
     def fill_search(self, customer_name):
         self.customer_search_input.fill(customer_name)

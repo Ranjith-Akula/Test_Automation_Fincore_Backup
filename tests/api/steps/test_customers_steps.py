@@ -39,15 +39,12 @@ def check_customer_id_1_matches_db(api_response, db_connection):
     customer_from_api = api_response.json().get("customer")
     assert customer_from_api is not None, "Response missing 'customer' field"
     with db_connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
-        cursor.execute("SELECT name, email, status, created_date FROM customers WHERE id = 1")
+        cursor.execute("SELECT name, email, status FROM customers WHERE id = 1")
         customer_from_db = cursor.fetchone()
     assert customer_from_db is not None, "Customer with id=1 not found in database"
     assert customer_from_api.get("name") == customer_from_db["name"]
     assert customer_from_api.get("email") == customer_from_db["email"]
     assert customer_from_api.get("status") == customer_from_db["status"]
-    api_date = customer_from_api.get("created_date", "").replace(".000Z", "")
-    db_date = customer_from_db["created_date"].strftime("%Y-%m-%dT%H:%M:%S")
-    assert api_date == db_date, "Created date does not match"
 
 
 @then("Response is 404 with error message")

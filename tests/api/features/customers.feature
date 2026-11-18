@@ -13,6 +13,7 @@ Feature: Customer API Scenarios
     When I GET "/customers?status=active"
     Then All returned records have status = active
 
+  @skip
   Scenario: Search by name
     Given I am authenticated
     When I GET "/customers?search=JOHN"

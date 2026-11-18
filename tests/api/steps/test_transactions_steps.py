@@ -39,9 +39,9 @@ def check_amounts_between_100_and_500(api_response):
     data = api_response.json().get("data", [])
     assert len(data) > 0, "Response returned no data to validate"
     for record in data:
-        amount = record.get("amount")
+        amount = float(record.get("amount"))
         assert amount is not None, f"Record {record} missing 'amount'"
-        assert 100 <= amount <= 500, f"Record {record} has amount outside the range 100-500"
+        assert 100 <= amount <= 500, f"Record {record} has amount outside the range 100-500, actual amount is {amount}"
 
     
 @then("All returned records belong to account_id 5 verified against DB")
